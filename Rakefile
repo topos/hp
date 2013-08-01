@@ -1,11 +1,15 @@
-ENV['PATH'] = "/opt/hp/bin:#{ENV['PATH']}"
+ENV['PATH'] = "/opt/hp/bin:/opt/ghc/bin:/usr/local/bin:/usr/bin:/bin"
 
 HP, HP_VERSION = 'haskell-platform', '2013.2.0.0'
 HP_DIR = "#{HP}-#{HP_VERSION}"
 
-TAR = 'hp.tar.bz2'
-HP_TAR = "/var/tmp/#{TAR}"
+HTAR = 'hp.tar.bz2'
+HP_TAR = "/var/tmp/#{HTAR}"
 
+desc "build and install ghc and haskell-platform"
+task :all => [:ghc, :hp]
+
+desc "build and install #{HP}-#{HP_VERSION}"
 task :hp => HP_DIR do
     Dir.chdir(HP_DIR) do
         sh "./configure --prefix=/opt/hp && sudo make"
@@ -24,9 +28,10 @@ end
 GHC, GHC_VERSION = 'ghc', '7.6.3'
 GHC_DIR = "#{GHC}-#{GHC_VERSION}"
 
-TAR = 'ghc.tar.bz2'
-GHC_TAR = "/var/tmp/#{TAR}"
+GTAR = 'ghc.tar.bz2'
+GHC_TAR = "/var/tmp/#{GTAR}"
 
+desc "build and install #{GHC}-#{GHC_VERSION}"
 task :ghc => GHC_DIR do
     Dir.chdir(GHC_DIR) do
         sh "./configure --prefix=/opt/hp && sudo make install"
