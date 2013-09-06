@@ -7,7 +7,20 @@ HTAR = 'hp.tar.bz2'
 HP_TAR = "/var/tmp/#{HTAR}"
 
 desc "build and install ghc and haskell-platform"
-task :all => [:ghc, :hp]
+task :all do
+  link_libgmp = '/usr/lib/libgmp.so.3'
+  libgmp = '/usr/lib/x86_64-linux-gnu/libgmp.so'
+  begin
+    sh "sudo ln -fs #{libgmp} #{link_libgmp}"
+    [:libs, :ghc, :hp].each do |t|
+      task(t).reenable
+      task(t).invoke
+    end
+  ensure
+    sh "sudo rm -f #{link_libgmp}"
+    raise $!
+  end
+end
 
 desc "build and install #{HP}-#{HP_VERSION}"
 task :hp => HP_DIR do
@@ -49,6 +62,7 @@ end
 
 task :libs do
     ls = [] << 'libgmp-dev'
+    ls << 'libgmp3-dev'
     ls << 'zlib1g-dev'
     ls << 'libgl1-mesa-dev'
     ls << 'libglc-dev'
@@ -58,7 +72,7 @@ task :libs do
     ls << 'libglw1-mesa'
 
     sh "sudo aptitude update -y"
-    ls .each{|l|sh "sudo aptitude install -y #{l}"}
+    ls.each{|l|sh "sudo aptitude install -y #{l}"}
 end
 
 task :clean do
