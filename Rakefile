@@ -1,4 +1,4 @@
-ENV['PATH'] = "/opt/hp/bin:/opt/ghc/bin:/usr/local/bin:/usr/bin:/bin"
+ENV['PATH'] = "/opt/hp/bin:/opt/ghc/bin:/opt/local/bin:/usr/local/bin:/usr/bin:/bin"
 
 HP, HP_VERSION = 'haskell-platform', '2013.2.0.0'
 HP_DIR = "#{HP}-#{HP_VERSION}"
@@ -8,10 +8,12 @@ HP_TAR = "/var/tmp/#{HTAR}"
 
 desc "build and install ghc and haskell-platform"
 task :all do
-  link_libgmp = '/usr/lib/libgmp.so.3'
-  libgmp = '/usr/lib/x86_64-linux-gnu/libgmp.so'
   begin
-    sh "sudo ln -fs #{libgmp} #{link_libgmp}"
+    if 'Linux' == uname
+      link_libgmp = '/usr/lib/libgmp.so.3'
+      libgmp = '/usr/lib/x86_64-linux-gnu/libgmp.so'
+      sh "sudo ln -fs #{libgmp} #{link_libgmp}"
+    end
     [:libs, :ghc, :hp].each do |t|
       task(t).reenable
       task(t).invoke
@@ -46,9 +48,11 @@ GHC_TAR = "/var/tmp/#{GTAR}"
 
 desc "build and install #{GHC}-#{GHC_VERSION}"
 task :ghc => GHC_DIR do
+  if 'Linux' == uname
     Dir.chdir(GHC_DIR) do
         sh "./configure --prefix=/opt/hp && sudo make install"
     end
+  end
 end
 
 directory GHC_DIR => GHC_TAR do
@@ -61,6 +65,7 @@ file GHC_TAR do
 end
 
 task :libs do
+  if 'Linux' == uname
     ls = [] << 'libgmp-dev'
     ls << 'libgmp3-dev'
     ls << 'zlib1g-dev'
@@ -70,12 +75,16 @@ task :libs do
     ls << 'libedit-dev'
     ls << 'libglw1-mesa-dev'
     ls << 'libglw1-mesa'
-
     sh "sudo aptitude update -y"
     ls.each{|l|sh "sudo aptitude install -y #{l}"}
+  end
 end
 
 task :clean do
     sh "sudo rm -rf /var/tmp/ghc.* ghc-*"
     sh "sudo rm -rf /var/tmp/hp.* haskell-*"
+end
+
+def uname
+  `uname -s`.strip
 end
