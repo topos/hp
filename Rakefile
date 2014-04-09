@@ -64,6 +64,26 @@ file GHC_TAR do
     sh "wget #{url} -O #{GHC_TAR}"
 end
 
+desc "build ghc from its git repo"
+task :ghc_git do
+  ENV['PATH'] = "/usr/local/bin:/usr/bin:/bin"
+  unless Dir.exists?('/var/tmp/ghc')
+    Dir.chdir('/var/tmp') do
+      sh "git clone http://git.haskell.org/ghc.git" 
+    end
+  end
+  Dir.chdir('/var/tmp/ghc') do 
+    sh "git pull"
+    sh "./sync-all get"
+    sh "sudo aptitude update -y"
+    sh "sudo aptitude install -y libxml2-dev libxml2-utils libxslt-dev libxslt-utils autoconf ghc happy alex cabal-install"
+    sh "perl boot"
+    sh "./configure --prefix=/opt/hp"
+    sh "make"
+    sh "make install"
+  end
+end
+
 task :libs do
   if 'Linux' == uname
     ls = [] << 'libgmp-dev'
