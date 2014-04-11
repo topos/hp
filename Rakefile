@@ -1,4 +1,4 @@
-ENV['PATH'] = "/opt/hp/bin:/opt/ghc/bin:/opt/local/bin:/usr/local/bin:/usr/bin:/bin"
+ENV['PATH'] = "/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin"
 
 HP, HP_VERSION = 'haskell-platform', '2013.2.0.0'
 HP_DIR = "#{HP}-#{HP_VERSION}"
@@ -40,7 +40,7 @@ file HP_TAR do
     sh "wget #{url} -O #{HP_TAR}"
 end
 
-GHC, GHC_VERSION = 'ghc', '7.6.3'
+GHC, GHC_VERSION = 'ghc', '7.8.1'
 GHC_DIR = "#{GHC}-#{GHC_VERSION}"
 
 GTAR = 'ghc.tar.bz2'
@@ -50,7 +50,9 @@ desc "build and install #{GHC}-#{GHC_VERSION}"
 task :ghc => GHC_DIR do
   if 'Linux' == uname
     Dir.chdir(GHC_DIR) do
-        sh "./configure --prefix=/opt/hp && sudo make install"
+      sh "./configure --prefix=/opt/hp"
+      sh "cd . && make"
+      sh "cd . && sudo make install"
     end
   end
 end
@@ -59,8 +61,9 @@ directory GHC_DIR => GHC_TAR do
     sh "tar xf #{GHC_TAR}"
 end
 
+# http://www.haskell.org/ghc/dist/7.8.1/ghc-7.8.1-src.tar.bz2
 file GHC_TAR do
-    url = "http://www.haskell.org/ghc/dist/#{GHC_VERSION}/ghc-#{GHC_VERSION}-x86_64-unknown-linux.tar.bz2"
+    url = "http://www.haskell.org/ghc/dist/#{GHC_VERSION}/ghc-#{GHC_VERSION}-src.tar.bz2"
     sh "wget #{url} -O #{GHC_TAR}"
 end
 
