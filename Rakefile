@@ -40,7 +40,7 @@ file HP_TAR do
     sh "wget #{url} -O #{HP_TAR}"
 end
 
-GHC, GHC_VERSION = 'ghc', '7.8.1'
+GHC, GHC_VERSION = 'ghc', '7.8.2'
 GHC_DIR = "#{GHC}-#{GHC_VERSION}"
 
 GTAR = 'ghc.tar.bz2'
